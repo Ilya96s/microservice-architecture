@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "my-spring-app.fullname" . }}-deployment
+  labels:
+    app: {{ include "my-spring-app.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "my-spring-app.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "my-spring-app.fullname" . }}
+    spec:
+      containers:
+        - name: {{ include "my-spring-app.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Подключение переменных из ConfigMap
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: my-spring-app-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: my-spring-app-config
+                  key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              valueFrom:
+                configMapKeyRef:
+                  name: my-spring-app-config
+                  key: SPRING_JPA_HIBERNATE_DDL_AUTO
+            - name: SPRING_JPA_SHOW_SQL
+              valueFrom:
+                configMapKeyRef:
+                  name: my-spring-app-config
+                  key: SPRING_JPA_SHOW_SQL
+
+            # Подключение переменных из Secret
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: my-spring-app-db-secret
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-spring-app-db-secret
+                  key: SPRING_DATASOURCE_PASSWORD

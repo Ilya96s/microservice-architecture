@@ -1,0 +1,12 @@
+apiVersion: v2
+name: my-spring-app
+description: A Helm chart for my Spring Boot application
+
+version: 0.1.0
+appVersion: "latest"
+
+dependencies:
+  - name: postgresql
+    version: 12.1.4
+    repository: https://charts.bitnami.com/bitnami
+
